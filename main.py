@@ -3,6 +3,9 @@ from fastapi import FastAPI
 # This is the crucial part for connecting to your frontend
 from fastapi.middleware.cors import CORSMiddleware 
 
+from fastapi.staticfiles import StaticFiles  # <-- IMPORT THIS
+from fastapi.responses import FileResponse
+
 app = FastAPI()
 
 # --- THIS IS THE CRITICAL PART ---
@@ -35,3 +38,18 @@ app.add_middleware(
 def get_data():
     # This is the data your frontend will receive
     return {"message": "Hello from the FastAPI backend!"}
+
+
+# --- SERVE FRONTEND ---
+# This new code serves your static files (HTML, CSS, JS)
+
+# 1. Mount the 'static' directory
+# This tells FastAPI that any URL starting with /
+# should look for files in the 'static' directory
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
+# 2. A "catch-all" endpoint for the root
+# This tells FastAPI to serve 'index.html' for the root URL
+@app.get("/")
+async def read_index():
+    return FileResponse('static/index.html')
