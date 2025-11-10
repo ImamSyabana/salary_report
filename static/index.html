@@ -16,7 +16,7 @@
             
             // This is the "magic" part!
             // 'fetch' makes a GET request to your FastAPI server
-            fetch("http://127.0.0.1:8000/api/data") // Make sure this URL matches your backend
+            fetch("/api/data") // Make sure this URL matches your backend
                 .then(response => response.json()) // Convert the response to JSON
                 .then(data => {
                     // "data" is the {"message": "..."} object from FastAPI
