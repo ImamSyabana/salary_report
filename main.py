@@ -6,7 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles  # <-- IMPORT THIS
 from fastapi.responses import FileResponse
 
+from pathlib import Path
+
 app = FastAPI()
+
+# --- Define the base directory ---
+# This creates a reliable, absolute path to the 'static' folder
+# no matter where Vercel runs the code.
+BASE_DIR = Path(__file__).resolve().parent
 
 # --- THIS IS THE CRITICAL PART ---
 # Set up CORS to allow your frontend to make requests
