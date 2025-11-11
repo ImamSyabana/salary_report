@@ -84,9 +84,28 @@ async def upload_cikarang_file(file: UploadFile = File(...)):
         await file.close() # Always close the file
     
     # --- IMPORTANT ---
-    # After saving, send the user back to the Cikarang page
-    # This is much cleaner than showing them a JSON response.
-    return RedirectResponse(url="/cikarang", status_code=303)
+    
+    # Instead of redirecting back to /cikarang,
+    # we redirect to the /viewer page and pass the filename
+    # as a query parameter in the URL.
+    return RedirectResponse(url=f"/cikarang_report?file={file.filename}", status_code=303)
+
+
+# --- NEW FILE SERVING ENDPOINT ---
+# This route's job is to securely serve files from the /tmp directory.
+# The browser will call this from the viewer.html's javascript.
+@app.get("/get-uploaded-file/{filename}")
+async def get_uploaded_file(filename: str):
+    
+    file_path = Path("/tmp") / filename
+    
+    # Security check: make sure the file exists
+    if not file_path.exists():
+        return {"error": "File not found or has expired."}, 404
+    
+    # Send the file's raw contents back
+    return FileResponse(file_path)
+
 
 # --- SERVE FRONTEND ---
 
@@ -101,3 +120,9 @@ async def serve_home():
 async def serve_about():
     # FileResponse sends back an HTML file
     return FileResponse(BASE_DIR / "static" / "cikarang.html")
+
+# --- NEW VIEWER PAGE ROUTE ---
+# This route serves the viewer.html page itself.
+@app.get("/cikarang_report")
+async def serve_viewer_page():
+    return FileResponse(BASE_DIR / "static" / "cikarang_report.html")

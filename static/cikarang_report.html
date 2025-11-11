@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Viewer</title>
+</head>
+<body>
+    <h1>Your Uploaded File</h1>
+
+    <div id="file-container">
+        </div>
+    <hr>
+    <a href="/cikarang">Upload file lain</a><br>
+    <a href="/">Go Home</a>
+
+    <script>
+        // 1. Get the query string from the URL
+        const params = new URLSearchParams(window.location.search);
+        const filename = params.get('file'); // e.g., "my_report.jpg"
+
+        if (filename) {
+            // 2. This is the new API URL we will build in main.py
+            const fileUrl = `/get-uploaded-file/${filename}`;
+            
+            const container = document.getElementById('file-container');
+
+            // 3. Create an <img> tag to display the file
+            //    (This assumes it's an image. For a PDF, you might use an <embed> tag)
+            const img = document.createElement('img');
+            img.src = fileUrl;
+            img.style.maxWidth = '80%';
+            container.appendChild(img);
+            
+            // 4. Also add a download link
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.textContent = `Download ${filename}`;
+            link.download = filename; // This tells the browser to download it
+            container.appendChild(document.createElement('br'));
+            container.appendChild(link);
+            
+        } else {
+            document.getElementById('file-container').innerText = 'No file specified.';
+        }
+    </script>
+</body>
+</html>
