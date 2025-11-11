@@ -8,6 +8,10 @@ from fastapi.responses import FileResponse
 
 from pathlib import Path
 
+from fastapi import File, UploadFile
+from fastapi.responses import RedirectResponse
+import shutil
+
 app = FastAPI()
 
 # --- Define the base directory ---
@@ -46,6 +50,43 @@ def get_data():
     # This is the data your frontend will receive
     return {"message": "Hello from the FastAPI backend!"}
 
+# --- NEW FILE UPLOAD ENDPOINT ---
+#
+# This MUST come BEFORE your page routes
+#
+@app.post("/upload/cikarang")
+async def upload_cikarang_file(file: UploadFile = File(...)):
+    
+    # This is where you decide what to do with the file.
+    # Let's save it to a folder named 'uploads'
+    
+    # (Make sure you create an 'uploads' folder in your project)
+    # Note: On Vercel, this is temporary. For permanent storage,
+    # you'd upload to a service like Amazon S3 or Google Cloud Storage.
+    
+    upload_folder = BASE_DIR / "uploads"
+    upload_folder.mkdir(exist_ok=True) # Create the folder if it doesn't exist
+    
+    file_path = upload_folder / file.filename
+    
+    try:
+        # Save the file to disk
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        print(f"Successfully uploaded file: {file.filename}")
+        
+    except Exception as e:
+        print(f"Error saving file: {e}")
+        return {"message": f"There was an error: {e}"}
+        
+    finally:
+        await file.close() # Always close the file
+    
+    # --- IMPORTANT ---
+    # After saving, send the user back to the Cikarang page
+    # This is much cleaner than showing them a JSON response.
+    return RedirectResponse(url="/cikarang", status_code=303)
 
 # --- SERVE FRONTEND ---
 
