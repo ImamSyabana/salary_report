@@ -64,7 +64,7 @@ async def upload_cikarang_file(file: UploadFile = File(...)):
     # Note: On Vercel, this is temporary. For permanent storage,
     # you'd upload to a service like Amazon S3 or Google Cloud Storage.
     
-    upload_folder = BASE_DIR / "uploads"
+    upload_folder = Path("/tmp")
     upload_folder.mkdir(exist_ok=True) # Create the folder if it doesn't exist
     
     file_path = upload_folder / file.filename
