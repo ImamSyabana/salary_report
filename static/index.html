@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastAPI Frontend</title>
+    <title>Validator Gaji</title>
 </head>
 <body>
-    <h1>My Frontend App</h1>
+    <h1>Validator Laporan Gaji 3 Cabang</h1>
     <button id="myButton">Get Data from Backend</button>
     <p id="messageArea"></p>
 
@@ -18,10 +18,10 @@
             // 'fetch' makes a GET request to your FastAPI server
 
             // (hardcoded to localhost)
-            fetch("http://127.0.0.1:8000/api/data")
+            //fetch("http://127.0.0.1:8000/api/data")
 
             // buat versi yang vercel make relative
-            //fetch("/api/data") // Make sure this URL matches your backend
+            fetch("/api/data") // Make sure this URL matches your backend
                 .then(response => response.json()) // Convert the response to JSON
                 .then(data => {
                     // "data" is the {"message": "..."} object from FastAPI
@@ -35,5 +35,9 @@
                 });
         });
     </script>
+
+    <p>
+        <a href="cikarang.html">Cek Laporan Cabang Cikarang</a>
+    </p>
 </body>
 </html>

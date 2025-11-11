@@ -48,15 +48,15 @@ def get_data():
 
 
 # --- SERVE FRONTEND ---
-# This new code serves your static files (HTML, CSS, JS)
-
-# 1. Mount the 'static' directory
-# This tells FastAPI that any URL starting with /
-# should look for files in the 'static' directory
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 # 2. A "catch-all" endpoint for the root
 # This tells FastAPI to serve 'index.html' for the root URL
 @app.get("/")
-async def read_index():
+async def serve_home():
     return FileResponse('static/index.html')
+
+# This route serves your ABOUT page
+@app.get("/cikarang")
+async def serve_about():
+    # FileResponse sends back an HTML file
+    return FileResponse("static"/"cikarang.html")
