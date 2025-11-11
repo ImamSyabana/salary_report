@@ -53,10 +53,10 @@ def get_data():
 # This tells FastAPI to serve 'index.html' for the root URL
 @app.get("/")
 async def serve_home():
-    return FileResponse('static/index.html')
+    return FileResponse(BASE_DIR / "static" / "index.html")
 
 # This route serves your ABOUT page
 @app.get("/cikarang")
 async def serve_about():
     # FileResponse sends back an HTML file
-    return FileResponse("static"/"cikarang.html")
+    return FileResponse(BASE_DIR / "static" / "cikarang.html")
