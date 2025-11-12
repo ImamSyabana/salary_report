@@ -41,6 +41,16 @@ def check_excel(df_office, df_driver):
                     df_office['potong_telat'].fillna(0))
 
 
+    # Replace all NaN/inf values with None (which becomes JSON null)
+    #
+    # vvvvvv ADD THESE LINES HERE vvvvvv
+    uang_makan_total_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    insentive_dealer_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gajiTotal_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gaji_diterima_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    # ^^^^^^ END OF NEW LINES ^^^^^^
+
+
     # bikin fungsi untuk check driver
     uang_makan_total_DRIVER = df_driver['n_hadir'] * df_driver['UM_per_hadir']
     insentive_dealer_DRIVER = (df_driver['Insentif(unit)_kirim_cust'] * df_driver['Insentif(tarif)_kirim_cust'] + 
@@ -82,7 +92,16 @@ def check_excel(df_office, df_driver):
                     df_driver['potong_BON'].fillna(0) -
                     df_driver['potong_telat'].fillna(0))
 
-
+    # --- (Alternative Fix) ---
+    # Replace all NaN/inf values with None (which becomes JSON null)
+    #
+    # vvvvvv ADD THESE LINES HERE vVvvvv
+    uang_makan_total_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    insentive_dealer_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gaji_pokok_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gajiTotal_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gaji_diterima_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    # ^^^^^^ END OF NEW LINES ^^^^^^
 
     final_refrence_dict = {
         "office" : [],
@@ -131,11 +150,11 @@ def check_excel(df_office, df_driver):
                 return obj.tolist()
             
 
-            # --- THIS IS THE FIX ---
-            # Add a check for standard Python float NaN
-            elif isinstance(obj, float) and np.isnan(obj):
-                return None
-            # -----------------------
+            # # --- THIS IS THE FIX ---
+            # # Add a check for standard Python float NaN
+            # elif isinstance(obj, float) and np.isnan(obj):
+            #     return None
+            # # -----------------------
             
             return json.JSONEncoder.default(self, obj)
         
