@@ -32,12 +32,12 @@ origins = [
     "http://localhost:8000",
     "http://127.0.0.1:5500",
     "http://127.0.0.1:3000",
-     # Add the URL your frontend is running on
-    "*",# You can also use "*" to allow all origins, but it's less secure
+    # Add the URL your frontend is running on
+    # You can also use "*" to allow all origins, but it's less secure
     # "http://localhost:5500" is a common one for live servers
 
     # --- ADD YOUR VERCEL URLS ---
-    "https://salary-report.vercel.app/", 
+    "https://salary-report.vercel.app", 
     # You can also add Vercel's preview URLs
     # "https://*.vercel.app"
 ]

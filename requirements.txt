@@ -8,3 +8,5 @@ SQLAlchemy
 pytest
 python-multipart
 openpyxl
+numpy
+pandas

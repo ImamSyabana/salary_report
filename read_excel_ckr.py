@@ -10,7 +10,7 @@ import numpy as np
 from pathlib import Path
 
 # Define the path to your Excel file
-file_path = 'GAJI NOV 2025.xlsx'
+#file_path = 'GAJI NOV 2025.xlsx'
 
 def read_excel(file_path: Path):
     

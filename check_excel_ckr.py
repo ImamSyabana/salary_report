@@ -3,8 +3,6 @@ import pandas as pd
 import json
 import numpy as np
 
-df_office, df_driver = read_excel('GAJI NOV 2025.xlsx')
-
 def check_excel(df_office, df_driver):
     # bikin fungsi untuk check admin
     uang_makan_total_OFFICE = df_office['n_hadir'] * df_office['UM_per_hadir']
@@ -140,5 +138,3 @@ def check_excel(df_office, df_driver):
     final_refrence_json = json.dumps(final_refrence_dict, indent=4, cls=NumpyEncoder)
 
     return final_refrence_json
-
-print(check_excel(df_office, df_driver))
