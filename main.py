@@ -134,16 +134,16 @@ async def get_uploaded_file(filename: str):
 async def serve_home():
     return FileResponse(BASE_DIR / "static" / "index.html")
 
-# This route serves your ABOUT page
-@app.get("/cikarang")
-async def serve_cikarang():
-    # FileResponse sends back an HTML file
-    return FileResponse(BASE_DIR / "static" / "cikarang.html")
-
 # route untuk pilih antara tiga cabang 
 @app.get("/cabang")
 async def serve_cabang():
     return FileResponse(BASE_DIR / "static" / "cabang.html" )
+
+# This route serves your ABOUT page
+@app.get("/cabang/cikarang")
+async def serve_cikarang():
+    # FileResponse sends back an HTML file
+    return FileResponse(BASE_DIR / "static" / "cikarang.html")
 
 # --- NEW VIEWER PAGE ROUTE ---
 # This route serves the viewer.html page itself.
