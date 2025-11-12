@@ -40,8 +40,11 @@ def check_excel(df_office, df_driver):
                     df_office['potong_BON'].fillna(0) -
                     df_office['potong_telat'].fillna(0))
 
-
-
+    # Replace all NaN/inf values with None (which becomes JSON null)
+    uang_makan_total_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    insentive_dealer_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gajiTotal_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gaji_diterima_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
 
     # bikin fungsi untuk check driver
     uang_makan_total_DRIVER = df_driver['n_hadir'] * df_driver['UM_per_hadir']
@@ -84,6 +87,12 @@ def check_excel(df_office, df_driver):
                     df_driver['potong_BON'].fillna(0) -
                     df_driver['potong_telat'].fillna(0))
 
+    # Replace all NaN/inf values with None (which becomes JSON null)
+    uang_makan_total_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    insentive_dealer_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gaji_pokok_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gajiTotal_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    gaji_diterima_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
 
 
     final_refrence_dict = {
@@ -132,10 +141,6 @@ def check_excel(df_office, df_driver):
             elif isinstance(obj, np.ndarray):
                 return obj.tolist()
             
-            # Add a check for standard Python float NaN
-            elif isinstance(obj, float) and np.isnan(obj):
-                return None
-    
             return json.JSONEncoder.default(self, obj)
         
 
