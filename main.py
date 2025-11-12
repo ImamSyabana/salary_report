@@ -52,7 +52,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
-# --- NEW FILE UPLOAD ENDPOINT ---
+# --- NEW FILE UPLOAD ENDPOINT. ---
 #
 # This MUST come BEFORE your page routes
 #
