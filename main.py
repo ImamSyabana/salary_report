@@ -7,10 +7,16 @@ from fastapi.staticfiles import StaticFiles  # <-- IMPORT THIS
 from fastapi.responses import FileResponse
 
 from pathlib import Path
+import uuid
 
 from fastapi import File, UploadFile
 from fastapi.responses import RedirectResponse
 import shutil
+
+# import module python untuk read and check excel
+import read_excel_ckr
+import check_excel_ckr
+
 
 app = FastAPI()
 
@@ -65,19 +71,37 @@ async def upload_cikarang_file(file: UploadFile = File(...)):
     # you'd upload to a service like Amazon S3 or Google Cloud Storage.
     
     upload_folder = Path("/tmp")
-    upload_folder.mkdir(exist_ok=True) # Create the folder if it doesn't exist
     
-    file_path = upload_folder / file.filename
+    original_file_path = upload_folder / file.filename
     
     try:
         # Save the file to disk
-        with open(file_path, "wb") as buffer:
+        with open(original_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        print(f"Successfully uploaded file: {file.filename}")
+        print(f"Original file saved to: {original_file_path}")
         
+        # memanggil fungsi untuk read (output: df_office, df_driver)
+        df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
+
+        # memanggil fungsi untuk check dan generate JSON
+        final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
+
+        if not final_refrence_json_string:
+            return {"message": "Error processing the Excel file."}
+        
+
+        # 1. Create a new, unique filename for our JSON
+        json_filename = f"{uuid.uuid4()}_result.json"
+        json_file_path = upload_folder / json_filename
+        
+        # 2. Save the JSON string to that file
+        with open(json_file_path, "w", encoding="utf-8") as f:
+            f.write(final_refrence_json_string)
+        # -----------------------------
+
     except Exception as e:
-        print(f"Error saving file: {e}")
+        print(f"Error: {e}")
         return {"message": f"There was an error: {e}"}
         
     finally:
@@ -88,7 +112,7 @@ async def upload_cikarang_file(file: UploadFile = File(...)):
     # Instead of redirecting back to /cikarang,
     # we redirect to the /viewer page and pass the filename
     # as a query parameter in the URL.
-    return RedirectResponse(url=f"/cikarang_report?file={file.filename}", status_code=303)
+    return RedirectResponse(url=f"/cikarang_report?file={json_filename}", status_code=303)
 
 
 # --- NEW FILE SERVING ENDPOINT ---

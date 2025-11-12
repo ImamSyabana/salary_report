@@ -3,13 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Viewer</title>
+    <title>Laporan Gaji Cikarang</title>
+
+    <style>
+        body { font-family: sans-serif; }
+        /* This <pre> tag will hold our formatted JSON data */
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 15px;
+            white-space: pre-wrap; /* This makes the text wrap */
+            word-wrap: break-word;
+            max-height: 600px; /* Makes it scrollable if too long */
+            overflow-y: auto;
+        }
+    </style>
+
 </head>
 <body>
-    <h1>Your Uploaded File</h1>
+    <h1>Pengecekan laporan Gaji Berhasil!</h1>
 
-    <div id="file-container">
-        </div>
+    <h2>Data JSON (Hasil Pengecekan):</h2>
+    <pre id="json-container">Loading data...</pre>
+    
     <hr>
     <a href="/cikarang">Upload file lain</a><br>
     <a href="/">Go Home</a>
@@ -17,31 +33,43 @@
     <script>
         // 1. Get the query string from the URL
         const params = new URLSearchParams(window.location.search);
-        const filename = params.get('file'); // e.g., "my_report.jpg"
+        // This 'file' parameter matches the one from our RedirectResponse
+        const filename = params.get('file');
 
+        const container = document.getElementById('json-container');
+        
         if (filename) {
             // 2. This is the new API URL we will build in main.py
             const fileUrl = `/get-uploaded-file/${filename}`;
             
-            const container = document.getElementById('file-container');
 
-            // 3. Create an <img> tag to display the file
-            //    (This assumes it's an image. For a PDF, you might use an <embed> tag)
-            const img = document.createElement('img');
-            img.src = fileUrl;
-            img.style.maxWidth = '80%';
-            container.appendChild(img);
-            
-            // 4. Also add a download link
-            const link = document.createElement('a');
-            link.href = fileUrl;
-            link.textContent = `Download ${filename}`;
-            link.download = filename; // This tells the browser to download it
-            container.appendChild(document.createElement('br'));
-            container.appendChild(link);
+            // 3. Fetch the file content
+            fetch(fileUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('File not found or error loading.');
+                    }
+                    return response.json(); // Parse the response as a JSON object
+                })
+                .then(jsonData => {
+                    // 4. We got the data! Now let's "pretty-print" it.
+                    // JSON.stringify(obj, null, 2) formats it with 2-space indents
+                    const formattedJson = JSON.stringify(jsonData, null, 2);
+                    
+                    // 5. Display the formatted text in the <pre> tag
+                    container.textContent = formattedJson;
+
+                    // --- THIS IS WHERE YOU WOULD VISUALIZE ---
+                    // Now you have the 'jsonData' object.
+                    // You can pass it to a charting library, e.g.:
+                    createMyCharts(jsonData.office, jsonData.driver);
+                })
+                .catch(error => {
+                    container.textContent = `Error: ${error.message}`;
+                });
             
         } else {
-            document.getElementById('file-container').innerText = 'No file specified.';
+            container.textContent = 'Error: No data file specified.';
         }
     </script>
 </body>

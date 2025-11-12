@@ -7,11 +7,12 @@ import pandas as pd
 # pd.set_option('display.max_columns', None)
 
 import numpy as np
+from pathlib import Path
 
 # Define the path to your Excel file
 file_path = 'GAJI NOV 2025.xlsx'
 
-def read_excel(file_path):
+def read_excel(file_path: Path):
     
     df_full = pd.read_excel(file_path, header=None, sheet_name="ckr")
 
