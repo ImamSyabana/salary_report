@@ -130,6 +130,7 @@ def check_excel(df_office, df_driver):
             elif isinstance(obj, np.ndarray):
                 return obj.tolist()
             
+
             # --- THIS IS THE FIX ---
             # Add a check for standard Python float NaN
             elif isinstance(obj, float) and np.isnan(obj):
@@ -143,5 +144,3 @@ def check_excel(df_office, df_driver):
     final_refrence_json = json.dumps(final_refrence_dict, indent=4, cls=NumpyEncoder)
 
     return final_refrence_json
-
-dr_office, df_driver = read_excel()
