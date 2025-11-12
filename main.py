@@ -49,12 +49,7 @@ app.add_middleware(
     allow_methods=["*"], # Allow all methods (GET, POST, etc.)
     allow_headers=["*"], # Allow all headers
 )
-# -----------------------------------
 
-@app.get("/api/data")
-def get_data():
-    # This is the data your frontend will receive
-    return {"message": "Hello from the FastAPI backend!"}
 
 # --- NEW FILE UPLOAD ENDPOINT ---
 #

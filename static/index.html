@@ -7,34 +7,7 @@
 </head>
 <body>
     <h1>Validator Laporan Gaji 3 Cabang</h1>
-    <button id="myButton">Get Data from Backend</button>
-    <p id="messageArea"></p>
-
-    <script>
-        // This is your client-side JavaScript
-        document.getElementById("myButton").addEventListener("click", function() {
-            
-            // This is the "magic" part!
-            // 'fetch' makes a GET request to your FastAPI server
-
-            // (hardcoded to localhost)
-            //fetch("http://127.0.0.1:8000/api/data")
-
-            // buat versi yang vercel make relative
-            fetch("/api/data") // Make sure this URL matches your backend
-                .then(response => response.json()) // Convert the response to JSON
-                .then(data => {
-                    // "data" is the {"message": "..."} object from FastAPI
-                    console.log(data);
-                    // Now, display it on the page
-                    document.getElementById("messageArea").innerText = data.message;
-                })
-                .catch(error => {
-                    console.error("Error fetching data:", error);
-                    document.getElementById("messageArea").innerText = "Error loading data.";
-                });
-        });
-    </script>
+    
 
     <p>
         <a href="/cikarang">Cek Laporan Cabang Cikarang</a>

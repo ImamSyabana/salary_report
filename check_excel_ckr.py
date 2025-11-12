@@ -44,10 +44,10 @@ def check_excel(df_office, df_driver):
     # Replace all NaN/inf values with None (which becomes JSON null)
     #
     # vvvvvv ADD THESE LINES HERE vvvvvv
-    uang_makan_total_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    insentive_dealer_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    gajiTotal_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    gaji_diterima_OFFICE.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    uang_makan_total_OFFICE.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    insentive_dealer_OFFICE.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    gajiTotal_OFFICE.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    gaji_diterima_OFFICE.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
     # ^^^^^^ END OF NEW LINES ^^^^^^
 
 
@@ -96,11 +96,11 @@ def check_excel(df_office, df_driver):
     # Replace all NaN/inf values with None (which becomes JSON null)
     #
     # vvvvvv ADD THESE LINES HERE vVvvvv
-    uang_makan_total_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    insentive_dealer_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    gaji_pokok_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    gajiTotal_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-    gaji_diterima_DRIVER.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    uang_makan_total_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    insentive_dealer_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    gaji_pokok_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    gajiTotal_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+    gaji_diterima_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
     # ^^^^^^ END OF NEW LINES ^^^^^^
 
     final_refrence_dict = {
