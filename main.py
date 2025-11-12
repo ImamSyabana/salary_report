@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 # This is the crucial part for connecting to your frontend
 from fastapi.middleware.cors import CORSMiddleware 
 
@@ -149,5 +149,12 @@ async def serve_cikarang():
 # --- NEW VIEWER PAGE ROUTE ---
 # This route serves the viewer.html page itself.
 @app.get("/cikarang_report")
-async def serve_viewer_page():
+async def serve_viewer_page(request: Request): # <-- Accept the request object
+    
+    # Check if the 'file' parameter is NOT in the URL
+    if "file" not in request.query_params:
+        # If it's missing, redirect the user back to the upload page
+        return RedirectResponse(url="/cabang/cikarang", status_code=307)
+        
+    # If the 'file' parameter exists, serve the report page as usual
     return FileResponse(BASE_DIR / "static" / "cikarang_report.html")
