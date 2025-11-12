@@ -50,6 +50,7 @@ app.add_middleware(
     allow_headers=["*"], # Allow all headers
 )
 
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 # --- NEW FILE UPLOAD ENDPOINT ---
 #
