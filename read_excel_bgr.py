@@ -4,16 +4,16 @@ import pandas as pd
 # #pd.set_option('display.max_columns', 50)
 
 # # OR, set it to None to display ALL columns, regardless of count
-pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_columns', None)
 
 import numpy as np
 from pathlib import Path
 
 # Define the path to your Excel file
-file_path = 'GAJI NOV 2025.xlsx'
+#file_path = 'GAJI NOV 2025.xlsx'
 
-#def read_excel(file_path: Path):
-def read_excel(file_path):
+def read_excel(file_path: Path):
+#def read_excel(file_path):
     df_full = pd.read_excel(file_path, header=None, sheet_name="BGR")
 
 
@@ -174,11 +174,6 @@ def read_excel(file_path):
     )
 
     return df_office, df_driver
-
-
-df_office, df_driver = read_excel(file_path=file_path)
-print(df_driver.columns)
-print(df_driver['UM_total'])
 
 
 # # --- 6. Check your results ---

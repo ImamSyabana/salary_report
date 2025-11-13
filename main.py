@@ -14,8 +14,8 @@ from fastapi.responses import RedirectResponse
 import shutil
 
 # import module python untuk read and check excel
-import read_excel_ckr
-import check_excel_ckr
+import read_excel_ckr, read_excel_bgr
+import check_excel_ckr, check_excel_bgr
 
 
 app = FastAPI()
@@ -56,8 +56,8 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 #
 # This MUST come BEFORE your page routes
 #
-@app.post("/upload/cikarang")
-async def upload_cikarang_file(file: UploadFile = File(...)):
+@app.post("/upload/{nama_cabang}")
+async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
     
     # This is where you decide what to do with the file.
     # Let's save it to a folder named 'uploads'
@@ -77,11 +77,27 @@ async def upload_cikarang_file(file: UploadFile = File(...)):
             
         print(f"Original file saved to: {original_file_path}")
         
-        # memanggil fungsi untuk read (output: df_office, df_driver)
-        df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
 
-        # memanggil fungsi untuk check dan generate JSON
-        final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
+        if nama_cabang == "cikarang":
+            # memanggil fungsi untuk read (output: df_office, df_driver)
+            df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
+
+            # memanggil fungsi untuk check dan generate JSON
+            final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
+
+        elif nama_cabang == "bogor":
+            # memanggil fungsi untuk read (output: df_office, df_driver)
+            df_office, df_driver = read_excel_bgr.read_excel(original_file_path)
+
+            # memanggil fungsi untuk check dan generate JSON
+            final_refrence_json_string = check_excel_bgr.check_excel(df_office, df_driver)
+
+        # elif nama_cabang == "karawang":
+        #     # memanggil fungsi untuk read (output: df_office, df_driver)
+        #     df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
+
+        #     # memanggil fungsi untuk check dan generate JSON
+        #     final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
 
         if not final_refrence_json_string:
             return {"message": "Error processing the Excel file."}
@@ -108,7 +124,7 @@ async def upload_cikarang_file(file: UploadFile = File(...)):
     # Instead of redirecting back to /cikarang,
     # we redirect to the /viewer page and pass the filename
     # as a query parameter in the URL.
-    return RedirectResponse(url=f"/cikarang_report?file={json_filename}", status_code=303)
+    return RedirectResponse(url=f"/report_viewer?file={json_filename}&nm_cabang={nama_cabang}", status_code=303)
 
 
 # --- NEW FILE SERVING ENDPOINT ---
@@ -140,21 +156,19 @@ async def serve_home():
 async def serve_cabang():
     return FileResponse(BASE_DIR / "static" / "cabang.html" )
 
-# This route serves your ABOUT page
-@app.get("/cabang/cikarang")
-async def serve_cikarang():
+
+# route untuk ke upload laporang cikarang
+@app.get("/cabang/{nama_cabang}")
+async def serve_cabang_page(nama_cabang: str):
     # FileResponse sends back an HTML file
-    return FileResponse(BASE_DIR / "static" / "cikarang.html")
+    return FileResponse(BASE_DIR / "static" / f"{nama_cabang}.html")
+
 
 # --- NEW VIEWER PAGE ROUTE ---
 # This route serves the viewer.html page itself.
-@app.get("/cikarang_report")
+@app.get("/report_viewer")
 async def serve_viewer_page(request: Request): # <-- Accept the request object
     
-    # Check if the 'file' parameter is NOT in the URL
-    if "file" not in request.query_params:
-        # If it's missing, redirect the user back to the upload page
-        return RedirectResponse(url="/cabang/cikarang", status_code=307)
-        
-    # If the 'file' parameter exists, serve the report page as usual
-    return FileResponse(BASE_DIR / "static" / "cikarang_report.html")
+    # Tugasnya HANYA menyajikan file HTML.
+    # Dia tidak perlu tahu tentang 'nama_cabang' atau 'file'.
+    return FileResponse(BASE_DIR / "static" / "page_report.html")

@@ -49,7 +49,8 @@
       </div>
 
     <br>
-    <h1 class="mb-4">Laporan Gaji (Admin & Driver) Cikarang</h1>
+
+    <h1 class="mb-4">Laporan Gaji (Admin & Driver)</h1>
     
     <div class="table-responsive">
         <table class="table table-striped table-hover table-bordered">
@@ -72,6 +73,7 @@
     </div>
     
     <h2 class="mt-5">Data Driver</h2>
+
     <div class="table-responsive">
         <table class="table table-striped table-hover table-bordered">
             <thead class="table-dark">
@@ -94,7 +96,8 @@
     
     <hr class="my-5">
 
-    <a href="/cabang/cikarang">
+    
+    <a href="/cabang">
         <button class="btn btn-dark rounded-pill px-3" type="button">
             Cek Laporan Lain
         </button>
@@ -108,13 +111,22 @@
         const params = new URLSearchParams(window.location.search);
         // This 'file' parameter matches the one from our RedirectResponse
         const filename = params.get('file');
+        const cabang = params.get('nm_cabang');
 
-        const container = document.getElementById('json-container');
         
         // 2. Get references to our new table bodies
         const officeTableBody = document.getElementById('office-table-body');
         const driverTableBody = document.getElementById('driver-table-body');
+        const titleElement = document.getElementById('report-title');
 
+        // 3. vvvv ADDED THIS BLOCK TO UPDATE TITLE vvvv
+        if (cabang) {
+            // Capitalize the first letter
+            const formattedCabang = cabang.charAt(0).toUpperCase() + cabang.slice(1);
+            titleElement.textContent = `Laporan Gaji (Admin & Driver) ${formattedCabang}`;
+            document.title = `Laporan ${formattedCabang}`; // Also update browser tab
+        }
+        
         // 3. Helper function to format numbers as Rupiah
         // This will turn '1500000' into 'Rp 1.500.000'
         function formatRupiah(number) {

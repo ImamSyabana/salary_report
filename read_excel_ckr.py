@@ -13,7 +13,7 @@ from pathlib import Path
 #file_path = 'GAJI NOV 2025.xlsx'
 
 def read_excel(file_path: Path):
-    
+#def read_excel(file_path):
     df_full = pd.read_excel(file_path, header=None, sheet_name="ckr")
 
 
