@@ -69,7 +69,7 @@
 
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <h1 class="mb-4">Upload Laporan Cabang Cikarang</h1>
+            <h1 class="mb-4">Upload laporan gaji cabang CIKARANG</h1>
             
             <!-- 
               The form still submits to your FastAPI endpoint as before.
@@ -86,11 +86,11 @@
                     <input type="file" name="file" id="fileInput" accept=".xlsx, .xls">
                     
                     <!-- This text will update to show the selected file -->
-                    <span id="dropZoneText">Drag & drop your Excel file here, or click to select</span>
+                    <span id="dropZoneText">Drag & drop atau klik untuk memilih file Excel</span>
                 </label>
 
                 <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-danger btn-lg">Upload File</button>
+                    <button type="submit" class="btn btn-warning btn-lg" style="color: #223971;">Upload File Excel</button>
                 </div>
 
             </form>
@@ -115,7 +115,7 @@
                 // Get the first file and update the text
                 dropZoneText.textContent = fileInput.files[0].name;
             } else {
-                dropZoneText.textContent = 'Drag & drop your Excel file here, or click to select';
+                dropZoneText.textContent = 'Drag & drop atau klik untuk memilih file Excel';
             }
         });
 

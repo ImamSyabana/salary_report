@@ -150,11 +150,11 @@ def check_excel(df_office, df_driver):
                 return obj.tolist()
             
 
-            # # --- THIS IS THE FIX ---
-            # # Add a check for standard Python float NaN
-            # elif isinstance(obj, float) and np.isnan(obj):
-            #     return None
-            # # -----------------------
+            # --- THIS IS THE FIX ---
+            # Add a check for standard Python float NaN
+            elif isinstance(obj, float) and np.isnan(obj):
+                return None
+            # -----------------------
             
             return json.JSONEncoder.default(self, obj)
         
