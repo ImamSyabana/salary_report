@@ -103,6 +103,10 @@ def check_excel(df_office, df_driver):
     gaji_diterima_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
     # ^^^^^^ END OF NEW LINES ^^^^^^
 
+    # vvvvv ADD THIS LINE vvvvv
+    df_office['Gaji_pokok'] = df_office['Gaji_pokok'].fillna(0)
+    # ^^^^^ ADD THIS LINE ^^^^^
+    
     final_refrence_dict = {
         "office" : [],
         "driver" : []
