@@ -4,17 +4,17 @@ import pandas as pd
 # #pd.set_option('display.max_columns', 50)
 
 # # OR, set it to None to display ALL columns, regardless of count
-# pd.set_option('display.max_columns', None)
+pd.set_option('display.max_columns', None)
 
 import numpy as np
 from pathlib import Path
 
 # Define the path to your Excel file
-#file_path = 'GAJI NOV 2025.xlsx'
+file_path = 'GAJI NOV 2025.xlsx'
 
-def read_excel(file_path: Path):
-    
-    df_full = pd.read_excel(file_path, header=None, sheet_name="ckr")
+#def read_excel(file_path: Path):
+def read_excel(file_path):
+    df_full = pd.read_excel(file_path, header=None, sheet_name="BGR")
 
 
     # 2. Find the row index for the start of each table's data
@@ -40,14 +40,13 @@ def read_excel(file_path: Path):
     # 3. Find the header row index for each table
     # Based on your file, the header is 2 rows *before* the data starts
     header_office_idx = data_office_start_idx - 2  # e.g., 5 - 2 = 3
-    header_driver_idx = data_driver_start_idx - 2  # e.g., 25 - 2 = 23
+    header_driver_idx = data_driver_start_idx - 1  # e.g., 25 - 2 = 23
 
 
     # --- 4. Create DataFrame 1 (Office) ---
 
     # Get the column names from the first header row
     df_office_columns = df_full.iloc[header_office_idx]
-
 
     def get_end_row_office(df):
         df_office_data = df.iloc[data_office_start_idx:]
@@ -77,7 +76,6 @@ def read_excel(file_path: Path):
     # It starts at data1_start_idx until the end 
     df_office_data = get_end_row_office(df_full)
 
-
     # Create the final, clean DataFrame 1
     # This also resets the index automatically
     df_office = pd.DataFrame(df_office_data.values, columns=df_office_columns)
@@ -85,9 +83,9 @@ def read_excel(file_path: Path):
     # ngebenerin nama kolomnya
     new_column_names = [
         'No', 'Nama', 'Jabatan', 'No_rek', 'n_hadir', 'UM_per_hadir', 'Insentif(unit)', 'Insentif(tarif)', 
-        'Gaji_pokok', 'Tunj_hdr_komunikasi', 'UM_total', 'Tunj_jab', 'instv_DLR', 'instv_etc_scp_stock', 'kesehatan',
-        'Gaji_total', 'potong_BPJS_sehat' , 'potong_BPJS_tng_kerja', 'potong_BON', 'potong_telat', 'gaji_diterima', 
-        'misc'
+        'Gaji_pokok', 'Tunj_hdr', 'UM_total', 'Tunj_komunikasi', 'Tunj_jab', 'instv_DLR', 'instv_lembur',
+        'Gaji_total', 'potong_BON', 'potong_telat', 'potong_BPJS', 'gaji_diterima'
+        
     ]
 
     # Check length first to be safe
@@ -102,7 +100,6 @@ def read_excel(file_path: Path):
 
     # Get the column names from the first header row
     df_driver_columns = df_full.iloc[header_office_idx]
-    #print(df_driver_columns[:])
 
     def get_end_row_driver(df):
         df_driver_data = df.iloc[data_driver_start_idx:]
@@ -141,11 +138,9 @@ def read_excel(file_path: Path):
 
     new_column_names = [
         'No', 'Nama', 'Jabatan', 'No_rek', 'n_hadir', 'UM_per_hadir', 'Insentif(unit)_kirim_cust', 'Insentif(tarif)_kirim_cust', 
-        'Gaji_pokok', 'Tunj_hdr_komunikasi', 'UM_total', 'Tunj_jab', 'instv_DLR', 'instv_etc_scp_stock', 'kesehatan',
-        'Gaji_total', 'potong_BPJS_sehat' , 'potong_BPJS_tng_kerja', 'potong_BON', 'potong_telat', 'gaji_diterima', 
-        'misc'
+        'Gaji_pokok', 'Tunj_hdr', 'UM_total', 'Tunj_komunikasi', 'Tunj_jab', 'instv_DLR', 'instv_lembur',
+        'Gaji_total', 'potong_BON', 'potong_telat', 'potong_BPJS', 'gaji_diterima'
     ]
-
 
     # ngebenerin nama kolomnya
     if len(df_driver.columns) == len(new_column_names):
@@ -179,6 +174,11 @@ def read_excel(file_path: Path):
     )
 
     return df_office, df_driver
+
+
+df_office, df_driver = read_excel(file_path=file_path)
+print(df_driver.columns)
+print(df_driver['UM_total'])
 
 
 # # --- 6. Check your results ---
