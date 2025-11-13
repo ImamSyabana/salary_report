@@ -163,7 +163,7 @@ def read_excel(file_path: Path):
     #print(insentif_unit_kirim_post)
 
     # hapus baris yang longkap2
-    df_driver = df_driver.dropna(subset=['No'], axis=0)
+    df_driver = df_driver.dropna(subset=['No'], axis=0).reset_index(drop=True)
 
     # insert kolom baru untuk unit dan tarif post
     df_driver.insert(

@@ -184,6 +184,13 @@
                     return response.json(); // Parse the response as a JSON object
                 })
                 .then(jsonData => {
+                    
+                    if (jsonData.message || !jsonData.office || !jsonData.driver) {
+                        // If it's an error, throw it so the .catch() block can handle it.
+                        const errorMsg = jsonData.message || 'Error: Invalid data structure received from server.';
+                        throw new Error(errorMsg);
+                    }
+
                     // We got the data! Now populate the tables
                     populateTable(officeTableBody, jsonData.office);
                     populateTable(driverTableBody, jsonData.driver);

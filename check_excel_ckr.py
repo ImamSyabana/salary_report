@@ -123,7 +123,7 @@ def check_excel(df_office, df_driver):
         final_refrence_dict['office'].append(add_office)
         
 
-    for x in range(0, len(df_driver) * 2, 2):
+    for x in range(len(df_driver)):
 
         add_driver = {
             'Nama' : df_driver['Nama'][x],
