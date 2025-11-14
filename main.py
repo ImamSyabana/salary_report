@@ -14,8 +14,8 @@ from fastapi.responses import RedirectResponse
 import shutil
 
 # import module python untuk read and check excel
-import read_excel_ckr, read_excel_bgr
-import check_excel_ckr, check_excel_bgr
+import read_excel_ckr, read_excel_bgr, read_excel_krw
+import check_excel_ckr, check_excel_bgr, check_excel_krw
 
 
 app = FastAPI()
@@ -92,12 +92,12 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
             # memanggil fungsi untuk check dan generate JSON
             final_refrence_json_string = check_excel_bgr.check_excel(df_office, df_driver)
 
-        # elif nama_cabang == "karawang":
-        #     # memanggil fungsi untuk read (output: df_office, df_driver)
-        #     df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
+        elif nama_cabang == "karawang":
+            # memanggil fungsi untuk read (output: df_office, df_driver)
+            df_office, df_driver = read_excel_krw.read_excel(original_file_path)
 
-        #     # memanggil fungsi untuk check dan generate JSON
-        #     final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
+            # memanggil fungsi untuk check dan generate JSON
+            final_refrence_json_string = check_excel_krw.check_excel(df_office, df_driver)
 
         if not final_refrence_json_string:
             return {"message": "Error processing the Excel file."}
