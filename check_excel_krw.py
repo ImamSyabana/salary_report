@@ -36,8 +36,7 @@ def check_excel(df_office, df_driver):
     # buat ngitung gaji diterima (setelah kena potongan)
     df_office['potong_BPJS'] = pd.to_numeric(df_office['potong_BPJS'], errors='coerce')
     df_office['potong_BON'] = pd.to_numeric(df_office['potong_BON'], errors='coerce')
-    df_office['potong_telat'] = pd.to_numeric(df_office['potong_telat'], errors='coerce')
-
+    
     gaji_diterima_OFFICE = (gajiTotal_OFFICE.fillna(0) -
                     df_office['potong_BPJS'].fillna(0) -
                     df_office['potong_BON'].fillna(0)
