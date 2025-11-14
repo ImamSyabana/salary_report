@@ -107,62 +107,63 @@
         const fileInput = document.getElementById('fileInput');
         const dropZoneText = document.getElementById('dropZoneText');
         const uploadForm = document.getElementById('uploadForm');
-
-        // --- 1. Handle Click-to-Select ---
-        // When the hidden input file changes (i.e., user selected a file)
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                // Get the first file and update the text
-                dropZoneText.textContent = fileInput.files[0].name;
-            } else {
-                dropZoneText.textContent = 'Drag & drop atau klik untuk memilih file Excel';
-            }
-        });
-
-        // --- 2. Handle Drag-and-Drop ---
-
-        // Add highlight class when file is dragged over
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault(); // This is necessary to allow a drop
-            dropZone.classList.add('dragover');
-        });
-
-        // Remove highlight class when file leaves
-        dropZone.addEventListener('dragleave', (e) => {
+        
+        // ... (all your existing drop-zone and fileInput listeners) ...
+        
+        // vvvvv REPLACE YOUR 'submit' LISTENER WITH THIS vvvvv
+        uploadForm.addEventListener('submit', (e) => {
+            // 1. Stop the form from submitting normally
             e.preventDefault();
-            dropZone.classList.remove('dragover');
-        });
 
-        // Handle the file drop
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault(); // Prevent browser from opening the file
-            dropZone.classList.remove('dragover');
-
-            // Get the dropped files
-            const files = e.dataTransfer.files;
-            
-            if (files.length > 0) {
-                // Assign the dropped files to our hidden file input
-                fileInput.files = files;
-                
-                // Update the text to show the file name
-                dropZoneText.textContent = files[0].name;
-            }
-        });
-
-        // Optional: Provide feedback on submit
-        uploadForm.addEventListener('submit', () => {
             const uploadButton = uploadForm.querySelector('button[type="submit"]');
-            if (fileInput.files.length > 0) {
-                uploadButton.innerHTML = `
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Uploading...
-                `;
-                uploadButton.disabled = true;
-            } else {
+
+            if (fileInput.files.length === 0) {
                 alert("Please select a file to upload.");
-                return false; // Stop the form from submitting
+                return;
             }
+
+            // 2. Show loading spinner
+            uploadButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Processing...
+            `;
+            uploadButton.disabled = true;
+
+            // 3. Create FormData to send the file
+            const formData = new FormData(uploadForm);
+            
+            // 4. Send the file using fetch()
+            fetch(uploadForm.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Upload failed. Server responded with ' + response.status);
+                }
+                return response.json(); // Get the JSON data from the server
+            })
+            .then(jsonData => {
+                // 5. Check if the server returned an error message
+                if (jsonData.message || !jsonData.office || !jsonData.driver) {
+                    const errorMsg = jsonData.message || 'Error processing file.';
+                    throw new Error(errorMsg);
+                }
+            
+                // 6. Save the data to the browser's session storage
+                // We must stringify it to store it
+                sessionStorage.setItem('reportData', JSON.stringify(jsonData));
+                
+                // 7. Manually redirect to the report viewer page
+                window.location.href = '/report_viewer';
+            })
+            .catch(error => {
+                // Handle any errors
+                alert('Error: ' + error.message);
+                // Reset the button
+                uploadButton.innerHTML = 'Upload File Excel';
+                uploadButton.disabled = false;
+            });
         });
 
     </script>

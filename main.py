@@ -83,14 +83,14 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
             df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
 
             # memanggil fungsi untuk check dan generate JSON
-            final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
+            final_refrence_dict = check_excel_ckr.check_excel(df_office, df_driver)
 
         elif nama_cabang == "bogor":
             # memanggil fungsi untuk read (output: df_office, df_driver)
             df_office, df_driver = read_excel_bgr.read_excel(original_file_path)
 
             # memanggil fungsi untuk check dan generate JSON
-            final_refrence_json_string = check_excel_bgr.check_excel(df_office, df_driver)
+            final_refrence_dict = check_excel_bgr.check_excel(df_office, df_driver)
 
         # elif nama_cabang == "karawang":
         #     # memanggil fungsi untuk read (output: df_office, df_driver)
@@ -99,18 +99,18 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
         #     # memanggil fungsi untuk check dan generate JSON
         #     final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
 
-        if not final_refrence_json_string:
+        if not final_refrence_dict:
             return {"message": "Error processing the Excel file."}
         
-
-        # 1. Create a new, unique filename for our JSON
-        json_filename = f"{uuid.uuid4()}_result.json"
-        json_file_path = upload_folder / json_filename
+        # # --- DELETE ALL THE FILE SAVING LOGIC ---
+        # # 1. Create a new, unique filename for our JSON
+        # json_filename = f"{uuid.uuid4()}_result.json"
+        # json_file_path = upload_folder / json_filename
         
-        # 2. Save the JSON string to that file
-        with open(json_file_path, "w", encoding="utf-8") as f:
-            f.write(final_refrence_json_string)
-        # -----------------------------
+        # # 2. Save the JSON string to that file
+        # with open(json_file_path, "w", encoding="utf-8") as f:
+        #     f.write(final_refrence_json_string)
+        # # -----------------------------
 
     except Exception as e:
         print(f"Error: {e}")
@@ -124,7 +124,7 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
     # Instead of redirecting back to /cikarang,
     # we redirect to the /viewer page and pass the filename
     # as a query parameter in the URL.
-    return RedirectResponse(url=f"/report_viewer?file={json_filename}&nm_cabang={nama_cabang}", status_code=303)
+    # return RedirectResponse(url=f"/report_viewer?file={json_filename}&nm_cabang={nama_cabang}", status_code=303)
 
 
 # --- NEW FILE SERVING ENDPOINT ---

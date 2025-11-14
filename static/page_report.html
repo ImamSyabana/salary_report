@@ -107,30 +107,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // 1. Get the query string from the URL
-        const params = new URLSearchParams(window.location.search);
-        // This 'file' parameter matches the one from our RedirectResponse
-        const filename = params.get('file');
-        const cabang = params.get('nm_cabang');
-
-        
-        // 2. Get references to our new table bodies
+        // 1. Get references to our table bodies and title
         const officeTableBody = document.getElementById('office-table-body');
         const driverTableBody = document.getElementById('driver-table-body');
         const titleElement = document.getElementById('report-title');
 
-        // 3. vvvv ADDED THIS BLOCK TO UPDATE TITLE vvvv
-        if (cabang) {
-            // Capitalize the first letter
-            const formattedCabang = cabang.charAt(0).toUpperCase() + cabang.slice(1);
-            titleElement.textContent = `Laporan Gaji (Admin & Driver) ${formattedCabang}`;
-            document.title = `Laporan ${formattedCabang}`; // Also update browser tab
-        }
-        
-        // 3. Helper function to format numbers as Rupiah
-        // This will turn '1500000' into 'Rp 1.500.000'
+        // 2. Helper function to format numbers as Rupiah
         function formatRupiah(number) {
-            // Handle null, undefined, or 0
             if (!number) {
                 return "Rp 0";
             }
@@ -141,23 +124,15 @@
             }).format(number);
         }
 
-        // 4. Helper function to populate a table
+        // 3. Helper function to populate a table
         function populateTable(tableBody, dataArray) {
-            // Clear the "Loading data..." message
             tableBody.innerHTML = '';
-
-            // Check if the array is empty
             if (dataArray.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No data found.</td></tr>';
                 return;
             }
-
-            // Loop through each person in the data array
             dataArray.forEach(person => {
-                // Create a new table row
                 const row = document.createElement('tr');
-
-                // Add cells (td) for each piece of data
                 row.innerHTML = `
                     <td>${person.Nama}</td>
                     <td>${formatRupiah(person.Gaji_pokok)}</td>
@@ -166,43 +141,45 @@
                     <td>${formatRupiah(person.Gaji_total)}</td>
                     <td>${formatRupiah(person.Gaji_diterima)}</td>
                 `;
-
-                // Add the new row to the table body
                 tableBody.appendChild(row);
             });
         }
 
-        // 5. Main fetch logic
-        if (filename) {
-            const fileUrl = `/get-uploaded-file/${filename}`;
-            
-            fetch(fileUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('File not found or error loading.');
-                    }
-                    return response.json(); // Parse the response as a JSON object
-                })
-                .then(jsonData => {
-                    
-                    if (jsonData.message || !jsonData.office || !jsonData.driver) {
-                        // If it's an error, throw it so the .catch() block can handle it.
-                        const errorMsg = jsonData.message || 'Error: Invalid data structure received from server.';
-                        throw new Error(errorMsg);
-                    }
+        // 4. --- NEW MAIN LOGIC ---
+        // Try to get the data from session storage
+        const storedData = sessionStorage.getItem('reportData');
+        
+        if (storedData) {
+            try {
+                // Parse the JSON string back into an object
+                const jsonData = JSON.parse(storedData);
+                const cabang = jsonData.nm_cabang; // Get the branch name
 
-                    // We got the data! Now populate the tables
-                    populateTable(officeTableBody, jsonData.office);
-                    populateTable(driverTableBody, jsonData.driver);
-                })
-                .catch(error => {
-                    const errorMsg = `Error: ${error.message}`;
-                    officeTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMsg}</td></tr>`;
-                    driverTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMsg}</td></tr>`;
-                });
-            
+                // 5. Update the page title
+                if (cabang) {
+                    const formattedCabang = cabang.charAt(0).toUpperCase() + cabang.slice(1);
+                    titleElement.textContent = `Laporan Gaji (Admin & Driver) ${formattedCabang}`;
+                    document.title = `Laporan ${formattedCabang}`;
+                }
+
+                // 6. Populate the tables
+                populateTable(officeTableBody, jsonData.office);
+                populateTable(driverTableBody, jsonData.driver);
+                
+                // 7. (Optional but recommended)
+                // Clear the data from storage so it's not shown again
+                // if the user navigates back to this page manually.
+                sessionStorage.removeItem('reportData');
+
+            } catch (error) {
+                const errorMsg = `Error: Failed to parse report data. ${error.message}`;
+                officeTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMsg}</td></tr>`;
+                driverTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMsg}</td></tr>`;
+            }
+
         } else {
-            const errorMsg = 'Error: No data file specified.';
+            // This happens if the user just types /report_viewer in the URL
+            const errorMsg = 'Error: No report data found. Please upload a file first.';
             officeTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMsg}</td></tr>`;
             driverTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMsg}</td></tr>`;
         }
