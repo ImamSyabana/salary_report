@@ -164,6 +164,6 @@ def check_excel(df_office, df_driver):
         
 
     # Convert the Python dictionary to a JSON string
-    # final_refrence_json = json.dumps(final_refrence_dict, indent=4, cls=NumpyEncoder)
+    final_refrence_json = json.dumps(final_refrence_dict, indent=4, cls=NumpyEncoder)
 
-    return final_refrence_dict
+    return final_refrence_json

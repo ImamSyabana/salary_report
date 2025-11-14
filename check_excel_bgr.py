@@ -105,7 +105,7 @@ def check_excel(df_office, df_driver):
     insentive_dealer_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
 
     #gaji_pokok_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
-
+    
     gajiTotal_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
     gaji_diterima_DRIVER.replace([np.nan, np.inf, -np.inf], 0, inplace=True)
     # ^^^^^^ END OF NEW LINES ^^^^^^
@@ -172,6 +172,6 @@ def check_excel(df_office, df_driver):
         
 
     # Convert the Python dictionary to a JSON string
-    # final_refrence_json = json.dumps(final_refrence_dict, indent=4, cls=NumpyEncoder)
+    final_refrence_json = json.dumps(final_refrence_dict, indent=4, cls=NumpyEncoder)
 
-    return final_refrence_dict
+    return final_refrence_json
