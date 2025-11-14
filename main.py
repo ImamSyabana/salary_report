@@ -1,10 +1,10 @@
 # main.py
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 # This is the crucial part for connecting to your frontend
 from fastapi.middleware.cors import CORSMiddleware 
 
 from fastapi.staticfiles import StaticFiles  # <-- IMPORT THIS
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from pathlib import Path
 import uuid
@@ -12,6 +12,8 @@ import uuid
 from fastapi import File, UploadFile
 from fastapi.responses import RedirectResponse
 import shutil
+import json
+import traceback
 
 # import module python untuk read and check excel
 import read_excel_ckr, read_excel_bgr, read_excel_krw
@@ -52,6 +54,10 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
+# Dictionary untuk menyimpan hasil processing sementara
+# Ini lebih reliable daripada file di /tmp untuk serverless
+processing_results = {}
+
 # --- NEW FILE UPLOAD ENDPOINT. ---
 #
 # This MUST come BEFORE your page routes
@@ -70,38 +76,89 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
     
     original_file_path = upload_folder / file.filename
     
+    ###############################
+    result_id = str(uuid.uuid4())
+
     try:
+        valid_cabang = ["cikarang", "bogor", "karawang"]
+
+        if nama_cabang not in valid_cabang:
+            raise HTTPException(status_code=400, detail=f"Invalid cabang: {nama_cabang}")
+        
+        # Validasi file extension
+        if not file.filename.endswith(('.xlsx', '.xls')):
+            raise HTTPException(status_code=400, detail="File must be an Excel file (.xlsx or .xls)")
+        
+        # Save the file to disk
+        print(f"Processing file: {file.filename} for cabang: {nama_cabang}")
+
         # Save the file to disk
         with open(original_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
         print(f"Original file saved to: {original_file_path}")
         
+        #################################
+        # Process berdasarkan cabang dengan error handling
+        df_office = None
+        df_driver = None
+        final_refrence_json_string = None
 
-        if nama_cabang == "cikarang":
-            # memanggil fungsi untuk read (output: df_office, df_driver)
-            df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
+        try:
+            if nama_cabang == "cikarang":
+                # memanggil fungsi untuk read (output: df_office, df_driver)
+                df_office, df_driver = read_excel_ckr.read_excel(original_file_path)
 
-            # memanggil fungsi untuk check dan generate JSON
-            final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
+                # memanggil fungsi untuk check dan generate JSON
+                final_refrence_json_string = check_excel_ckr.check_excel(df_office, df_driver)
 
-        elif nama_cabang == "bogor":
-            # memanggil fungsi untuk read (output: df_office, df_driver)
-            df_office, df_driver = read_excel_bgr.read_excel(original_file_path)
+            elif nama_cabang == "bogor":
+                # memanggil fungsi untuk read (output: df_office, df_driver)
+                df_office, df_driver = read_excel_bgr.read_excel(original_file_path)
 
-            # memanggil fungsi untuk check dan generate JSON
-            final_refrence_json_string = check_excel_bgr.check_excel(df_office, df_driver)
+                # memanggil fungsi untuk check dan generate JSON
+                final_refrence_json_string = check_excel_bgr.check_excel(df_office, df_driver)
 
-        elif nama_cabang == "karawang":
-            # memanggil fungsi untuk read (output: df_office, df_driver)
-            df_office, df_driver = read_excel_krw.read_excel(original_file_path)
+            elif nama_cabang == "karawang":
+                # memanggil fungsi untuk read (output: df_office, df_driver)
+                df_office, df_driver = read_excel_krw.read_excel(original_file_path)
 
-            # memanggil fungsi untuk check dan generate JSON
-            final_refrence_json_string = check_excel_krw.check_excel(df_office, df_driver)
+                # memanggil fungsi untuk check dan generate JSON
+                final_refrence_json_string = check_excel_krw.check_excel(df_office, df_driver)
 
-        if not final_refrence_json_string:
-            return {"message": "Error processing the Excel file."}
+        except Exception as processing_error:
+            print(f"Error during processing: {str(processing_error)}")
+            print(traceback.format_exc())
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Error processing Excel file: {str(processing_error)}"
+            )
         
+        # Validasi hasil
+        if not final_refrence_json_string:
+            raise HTTPException(
+                status_code=500, 
+                detail="Processing returned empty result"
+            )
+        
+        # Validasi JSON
+        try:
+            json_data = json.loads(final_refrence_json_string)
+            if not isinstance(json_data, dict) or 'office' not in json_data or 'driver' not in json_data:
+                raise ValueError("Invalid JSON structure")
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error: {str(e)}")
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Invalid JSON generated: {str(e)}"
+            )
+        
+        # Simpan hasil di memory (lebih reliable untuk serverless)
+        processing_results[result_id] = {
+            "data": json_data,
+            "cabang": nama_cabang,
+            "filename": file.filename
+        }
 
         # 1. Create a new, unique filename for our JSON
         json_filename = f"{uuid.uuid4()}_result.json"
@@ -112,20 +169,31 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
             f.write(final_refrence_json_string)
         # -----------------------------
 
-    except Exception as e:
-        print(f"Error: {e}")
-        return {"message": f"There was an error: {e}"}
+        print(f"Processing complete. Result ID: {result_id}")
         
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Unexpected error: {str(e)}"
+        )
     finally:
-        await file.close() # Always close the file
+        await file.close()
+        # Hapus file original untuk save space
+        try:
+            if original_file_path.exists():
+                original_file_path.unlink()
+        except:
+            pass
     
-    # --- IMPORTANT ---
-    
-    # Instead of redirecting back to /cikarang,
-    # we redirect to the /viewer page and pass the filename
-    # as a query parameter in the URL.
-    return RedirectResponse(url=f"/report_viewer?file={json_filename}&nm_cabang={nama_cabang}", status_code=303)
-
+    # Redirect dengan result_id
+    return RedirectResponse(
+        url=f"/report_viewer?file={result_id}&nm_cabang={nama_cabang}", 
+        status_code=303
+    )
 
 # --- NEW FILE SERVING ENDPOINT ---
 # This route's job is to securely serve files from the /tmp directory.
@@ -133,42 +201,54 @@ async def upload_cikarang_file(nama_cabang: str, file: UploadFile = File(...)):
 @app.get("/get-uploaded-file/{filename}")
 async def get_uploaded_file(filename: str):
     
-    file_path = Path("/tmp") / filename
+    # Coba ambil dari memory terlebih dahulu
+    if filename in processing_results:
+        print(f"Serving from memory: {filename}")
+        return JSONResponse(content=processing_results[filename]["data"])
+
+    # Fallback ke file di /tmp
+    file_path = Path("/tmp") / f"{filename}_result.json"
     
-    # Security check: make sure the file exists
     if not file_path.exists():
-        return {"error": "File not found or has expired."}, 404
+        print(f"File not found: {filename}")
+        raise HTTPException(
+            status_code=404, 
+            detail="File not found or has expired. Please upload again."
+        )
     
-    # Send the file's raw contents back
-    return FileResponse(file_path)
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        print(f"Serving from file: {filename}")
+        return JSONResponse(content=data)
+    except Exception as e:
+        print(f"Error reading file {filename}: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error reading result file: {str(e)}"
+        )
 
 
 # --- SERVE FRONTEND ---
 
-# 2. A "catch-all" endpoint for the root
-# This tells FastAPI to serve 'index.html' for the root URL
 @app.get("/")
 async def serve_home():
     return FileResponse(BASE_DIR / "static" / "index.html")
 
-# route untuk pilih antara tiga cabang 
 @app.get("/cabang")
 async def serve_cabang():
-    return FileResponse(BASE_DIR / "static" / "cabang.html" )
+    return FileResponse(BASE_DIR / "static" / "cabang.html")
 
-
-# route untuk ke upload laporang cikarang
 @app.get("/cabang/{nama_cabang}")
 async def serve_cabang_page(nama_cabang: str):
-    # FileResponse sends back an HTML file
     return FileResponse(BASE_DIR / "static" / f"{nama_cabang}.html")
 
-
-# --- NEW VIEWER PAGE ROUTE ---
-# This route serves the viewer.html page itself.
 @app.get("/report_viewer")
-async def serve_viewer_page(request: Request): # <-- Accept the request object
-    
-    # Tugasnya HANYA menyajikan file HTML.
-    # Dia tidak perlu tahu tentang 'nama_cabang' atau 'file'.
+async def serve_viewer_page(request: Request):
     return FileResponse(BASE_DIR / "static" / "page_report.html")
+
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
